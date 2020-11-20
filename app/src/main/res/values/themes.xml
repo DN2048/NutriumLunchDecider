@@ -1,0 +1,21 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <!-- Base application theme. -->
+    <style name="Theme.NutriumLunchDecider" parent="Theme.MaterialComponents.DayNight.DarkActionBar">
+        <!-- Primary brand color. -->
+        <item name="colorPrimary">@color/nutrium_green</item>
+        <item name="colorPrimaryVariant">@color/nutrium_green_darker</item>
+        <item name="colorAccent">@color/nutrium_orange</item>
+        <item name="colorOnPrimary">@color/fake_white</item>
+        <!-- Status bar color. -->
+        <item name="android:statusBarColor" tools:targetApi="l">?attr/colorPrimaryVariant</item>
+        <!-- Customize your theme here. -->
+    </style>
+
+    <style name="Theme.NutriumLunchDecider.NoActionBar">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+    </style>
+
+    <style name="Theme.NutriumLunchDecider.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
+    <style name="Theme.NutriumLunchDecider.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
+</resources>

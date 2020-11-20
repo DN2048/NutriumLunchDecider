@@ -1,0 +1,6 @@
+<resources>
+    <string name="app_name">Nutrium Lunch Decider</string>
+    <string name="action_about">About</string>
+    <string name="please_wait_gps">Waiting to know where you are…</string>
+    <string name="help_message">Touch to open restaurant in your GPS navigator\n\nLongtouch to add/remove to favourites</string>
+</resources>

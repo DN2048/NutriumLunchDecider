@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="nutrium_green">#1ab394</color>
+    <color name="nutrium_green_darker">#0D987C</color>
+    <color name="nutrium_orange">#ea9f77</color>
+    <color name="fake_white">#eee</color>
+    <color name="fake_black">#222</color>
+</resources>
