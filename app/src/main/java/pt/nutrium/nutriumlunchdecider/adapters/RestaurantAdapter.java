@@ -1,6 +1,8 @@
 package pt.nutrium.nutriumlunchdecider.adapters;
 
 import android.content.Context;
+import android.content.Intent;
+import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,11 +12,12 @@ import android.widget.TextView;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
+import java.util.Locale;
 
 import pt.nutrium.nutriumlunchdecider.R;
 import pt.nutrium.nutriumlunchdecider.models.Restaurant;
 
-class RestaurantAdapter extends RecyclerView.Adapter<RestaurantAdapter.RestaurantAdapterHolder> implements View.OnClickListener {
+public class RestaurantAdapter extends RecyclerView.Adapter<RestaurantAdapter.RestaurantAdapterHolder> implements View.OnClickListener {
     private final ArrayList<Restaurant> restaurants;
     private final Context context;
 
@@ -35,9 +38,13 @@ class RestaurantAdapter extends RecyclerView.Adapter<RestaurantAdapter.Restauran
 
     @Override
     public void onBindViewHolder(RestaurantAdapterHolder holder, int position) {
-        holder.name.setText("");
-        holder.distance.setText("");
-        holder.price.setText("");
+        Restaurant restaurant = restaurants.get(position);
+        holder.name.setText(restaurant.getName());
+        holder.distance.setText(String.format(Locale.getDefault(), "%.2f %s", restaurant.getDistance(), context.getString(R.string.km)));
+        holder.price.setText(String.format(Locale.getDefault(), "%s%.2f", restaurant.getCurrency(), restaurant.getPrice()));
+        holder.stars.setRating((float) restaurant.getStars());
+        holder.address.setText(restaurant.getAddress());
+        holder.cuisines.setText(restaurant.getCuisines());
         holder.itemView.setTag(position);
     }
 
@@ -51,7 +58,8 @@ class RestaurantAdapter extends RecyclerView.Adapter<RestaurantAdapter.Restauran
     @Override
     public void onClick(View view) {
         int p = Integer.parseInt(view.getTag().toString());
-
+        Uri addressUri = Uri.parse("geo:0,0?q=" + Uri.encode(restaurants.get(p).getName().replace(", ", "+")));
+        context.startActivity(new Intent(Intent.ACTION_VIEW, addressUri));
     }
 
 
@@ -61,6 +69,8 @@ class RestaurantAdapter extends RecyclerView.Adapter<RestaurantAdapter.Restauran
         protected TextView distance;
         protected TextView price;
         protected RatingBar stars;
+        protected TextView cuisines;
+        protected TextView address;
 
         public RestaurantAdapterHolder(View itemView) {
             super(itemView);
@@ -68,6 +78,8 @@ class RestaurantAdapter extends RecyclerView.Adapter<RestaurantAdapter.Restauran
             distance = itemView.findViewById(R.id.tvRestaurantDistance);
             price = itemView.findViewById(R.id.tvRestaurantPrice);
             stars = itemView.findViewById(R.id.rbRestaurantStars);
+            cuisines = itemView.findViewById(R.id.tvRestaurantCuisines);
+            address = itemView.findViewById(R.id.tvRestaurantAddress);
         }
     }
 }

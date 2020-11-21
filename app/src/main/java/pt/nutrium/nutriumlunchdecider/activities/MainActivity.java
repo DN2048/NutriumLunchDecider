@@ -1,6 +1,7 @@
 package pt.nutrium.nutriumlunchdecider.activities;
 
 import android.Manifest;
+import android.content.Context;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.AsyncTask;
@@ -8,26 +9,39 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.widget.ContentLoadingProgressBar;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
+import com.google.android.material.snackbar.Snackbar;
 
 import java.util.ArrayList;
 
 import pt.nutrium.nutriumlunchdecider.R;
+import pt.nutrium.nutriumlunchdecider.adapters.RestaurantAdapter;
+import pt.nutrium.nutriumlunchdecider.models.Restaurant;
 import pt.nutrium.nutriumlunchdecider.utils.LocationProvider;
+import pt.nutrium.nutriumlunchdecider.utils.ZomatoCommunicator;
 
 public class MainActivity extends AppCompatActivity implements AsyncTaskListener {
     private final static String TAG = "MACT";
     private final static int LOCATION_REQUEST_CODE = 100;
 
     private ContentLoadingProgressBar pbLoading;
+    private TextView tvToolbarSubtext;
     private LocationProvider lpGps;
     private LocationProvider lpNetwork;
+    private RecyclerView rvRestaurants;
+    private TextView tvIntroMessage;
 
 
     @Override
@@ -43,6 +57,11 @@ public class MainActivity extends AppCompatActivity implements AsyncTaskListener
 
         // Atribuir views às variaveis
         pbLoading = findViewById(R.id.pbLoading);
+        tvToolbarSubtext = findViewById(R.id.tvToolbarSubtext);
+        rvRestaurants = findViewById(R.id.rcRestaurants);
+        LinearLayoutManager layoutManager = new LinearLayoutManager(this);
+        rvRestaurants.setLayoutManager(layoutManager);
+        tvIntroMessage = findViewById(R.id.tvIntroMessage);
     }
 
 
@@ -68,13 +87,14 @@ public class MainActivity extends AppCompatActivity implements AsyncTaskListener
         // Verificar se app tem permissões para aceder à localização
         if (checkLocationPermission()) {
             pbLoading.show();
-            mainTask(lpGps, lpNetwork, this).execute();
+            tvToolbarSubtext.setText("");
+            mainTask(this, lpGps, lpNetwork, this).execute();
         }
     }
 
 
-    private static AsyncTask<Void, Void, Void> mainTask(LocationProvider lpGps, LocationProvider lpNetwork, AsyncTaskListener listener) {
-        return new AsyncTask<Void, Void, Void>() {
+    private static AsyncTask<Void, Void, ArrayList<Restaurant>> mainTask(final Context context, final LocationProvider lpGps, final LocationProvider lpNetwork, final AsyncTaskListener listener) {
+        return new AsyncTask<Void, Void, ArrayList<Restaurant>>() {
             @Override
             protected void onPreExecute() {
                 lpGps.start();
@@ -82,7 +102,7 @@ public class MainActivity extends AppCompatActivity implements AsyncTaskListener
             }
 
             @Override
-            protected Void doInBackground(Void... voids) {
+            protected ArrayList<Restaurant> doInBackground(Void... voids) {
                 // Verificar qual sistema devolve melhor precisão da localização (GPS ou rede)
                 Location lGps = lpGps.getLocation();
                 Location lNetwork = lpNetwork.getLocation();
@@ -93,24 +113,32 @@ public class MainActivity extends AppCompatActivity implements AsyncTaskListener
                 float accGps = lGps == null ? LocationProvider.NO_LOCATION_ACCURACY : lGps.getAccuracy();
                 float accNetwork = lNetwork == null ? LocationProvider.NO_LOCATION_ACCURACY : lNetwork.getAccuracy();
                 // Ir buscar restaurantes baseado na posição do vencedor
-                if (accGps < accNetwork)
+                ZomatoCommunicator zc = new ZomatoCommunicator(context);
+                if (accGps < accNetwork) {
                     Log.d(TAG, "GPS Wins: " + String.valueOf(accGps));
-                else
+                    return zc.getRestaurants(lGps.getLatitude(), lGps.getLongitude());
+                } else {
                     Log.d(TAG, "Network Wins: " + String.valueOf(accNetwork));
-
-                return null;
+                    return zc.getRestaurants(lNetwork.getLatitude(), lNetwork.getLongitude());
+                }
             }
 
             @Override
-            protected void onPostExecute(Void aVoid) {
-                listener.onMainTaskCompleted(new ArrayList<String>());
+            protected void onPostExecute(ArrayList<Restaurant> restaurants) {
+                listener.onMainTaskCompleted(restaurants);
             }
         };
     }
 
 
     @Override
-    public void onMainTaskCompleted(ArrayList<String> restaurants) {
+    public void onMainTaskCompleted(ArrayList<Restaurant> restaurants) {
+        if (restaurants != null) {
+            tvIntroMessage.setVisibility(View.GONE);
+            rvRestaurants.setAdapter(new RestaurantAdapter(this, restaurants));
+        } else
+            showSnackbar(getString(R.string.failed_to_get_restaurants));
+
         pbLoading.hide();
     }
 
@@ -132,7 +160,11 @@ public class MainActivity extends AppCompatActivity implements AsyncTaskListener
             case R.id.action_refresh:
                 findRestaurants();
                 return true;
+            case R.id.action_help:
+                showDialog(getString(R.string.action_help), getString(R.string.help_message));
+                return true;
             case R.id.action_about:
+                showDialog(getString(R.string.action_about), getString(R.string.about_message));
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -155,9 +187,26 @@ public class MainActivity extends AppCompatActivity implements AsyncTaskListener
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         if (requestCode == LOCATION_REQUEST_CODE) {
-            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 findRestaurants();
             }
         }
+    }
+
+
+    /* OUTROS */
+
+    private void showDialog(final String title, final String message) {
+        new AlertDialog
+                .Builder(this)
+                .setTitle(title)
+                .setMessage(message)
+                .setPositiveButton(getString(android.R.string.ok), null)
+                .show();
+    }
+
+
+    private void showSnackbar(final String message) {
+        Snackbar.make(findViewById(android.R.id.content), message, Snackbar.LENGTH_LONG).show();
     }
 }

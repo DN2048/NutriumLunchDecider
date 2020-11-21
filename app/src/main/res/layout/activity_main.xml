@@ -19,27 +19,52 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
-        <androidx.appcompat.widget.Toolbar
-            android:id="@+id/toolbar"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            app:popupTheme="@style/Theme.NutriumLunchDecider.PopupOverlay" />
+            <TextView
+                android:id="@+id/tvToolbarSubtext"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="bottom"
+                android:paddingLeft="8dp"
+                android:paddingBottom="8dp"
+                android:textColor="@color/fake_white"
+                android:textSize="@dimen/small_text_size" />
 
-        <androidx.core.widget.ContentLoadingProgressBar
-            android:id="@+id/pbLoading"
-            android:layout_gravity="bottom"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            style="?android:attr/progressBarStyleHorizontal"
-            android:indeterminate="true" />
+            <androidx.appcompat.widget.Toolbar
+                android:id="@+id/toolbar"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                app:popupTheme="@style/Theme.NutriumLunchDecider.PopupOverlay" />
+
+            <androidx.core.widget.ContentLoadingProgressBar
+                android:id="@+id/pbLoading"
+                style="?android:attr/progressBarStyleHorizontal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="bottom"
+                android:indeterminate="true" />
         </FrameLayout>
     </com.google.android.material.appbar.AppBarLayout>
+
+    <TextView
+        android:id="@+id/tvIntroMessage"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:text="@string/intro_message"
+        android:textColor="@color/fake_black"
+        android:textSize="@dimen/big_text_size"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/app_bar" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rcRestaurants"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_margin="@dimen/activity_margin"
+        android:fadingEdge="vertical"
+        android:fadingEdgeLength="@dimen/activity_margin"
+        android:requiresFadingEdge="vertical"
+        android:scrollbarSize="@dimen/margin_fields"
+        android:scrollbars="vertical"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintTop_toBottomOf="@id/app_bar" />
 

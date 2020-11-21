@@ -8,12 +8,12 @@ import android.os.Bundle;
 
 import androidx.core.location.LocationManagerCompat;
 
-public class LocationProvider implements LocationListener{
+public class LocationProvider implements LocationListener {
 
     private static final long MIN_UPDATE_DISTANCE = 5; // em metros
     private static final long MIN_UPDATE_TIME = 15000; // em ms
     private static final long STALE_THRESHOLD = MIN_UPDATE_TIME * 5;
-    public  static final float NO_LOCATION_ACCURACY = 9999;
+    public static final float NO_LOCATION_ACCURACY = 9999;
 
     public enum ProviderType {
         NETWORK, GPS
@@ -56,8 +56,7 @@ public class LocationProvider implements LocationListener{
     public boolean hasLocation() {
         if (lastLocation == null) {
             return false;
-        }
-        else if(System.currentTimeMillis() - lastTime > STALE_THRESHOLD)
+        } else if (System.currentTimeMillis() - lastTime > STALE_THRESHOLD)
             // Não houve mais atualizações de posição
             return false;
         else
@@ -116,5 +115,12 @@ public class LocationProvider implements LocationListener{
     public static boolean isLocationEnabled(final Context context) {
         LocationManager locationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
         return LocationManagerCompat.isLocationEnabled(locationManager);
+    }
+
+
+    public static double calculateDistance(double startLat, double startLon, double endLat, double endLon) {
+        float[] results = new float[3];
+        Location.distanceBetween(startLat, startLon, endLat, endLon, results);
+        return results[0] / 1000; // Resultado vem em metros
     }
 }
