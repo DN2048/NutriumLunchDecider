@@ -4,6 +4,7 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.RatingBar;
 import android.widget.TextView;
 
 import androidx.recyclerview.widget.RecyclerView;
@@ -14,8 +15,8 @@ import pt.nutrium.nutriumlunchdecider.R;
 import pt.nutrium.nutriumlunchdecider.models.Restaurant;
 
 class RestaurantAdapter extends RecyclerView.Adapter<RestaurantAdapter.RestaurantAdapterHolder> implements View.OnClickListener {
-    private ArrayList<Restaurant> restaurants;
-    private Context context;
+    private final ArrayList<Restaurant> restaurants;
+    private final Context context;
 
 
     public RestaurantAdapter(final Context context, final ArrayList<Restaurant> restaurants) {
@@ -36,6 +37,7 @@ class RestaurantAdapter extends RecyclerView.Adapter<RestaurantAdapter.Restauran
     public void onBindViewHolder(RestaurantAdapterHolder holder, int position) {
         holder.name.setText("");
         holder.distance.setText("");
+        holder.price.setText("");
         holder.itemView.setTag(position);
     }
 
@@ -57,11 +59,15 @@ class RestaurantAdapter extends RecyclerView.Adapter<RestaurantAdapter.Restauran
 
         protected TextView name;
         protected TextView distance;
+        protected TextView price;
+        protected RatingBar stars;
 
         public RestaurantAdapterHolder(View itemView) {
             super(itemView);
-            name = (TextView) itemView.findViewById(R.id.tvRestaurantName);
-            distance = (TextView) itemView.findViewById(R.id.tvRestaurantDistance);
+            name = itemView.findViewById(R.id.tvRestaurantName);
+            distance = itemView.findViewById(R.id.tvRestaurantDistance);
+            price = itemView.findViewById(R.id.tvRestaurantPrice);
+            stars = itemView.findViewById(R.id.rbRestaurantStars);
         }
     }
 }

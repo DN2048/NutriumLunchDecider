@@ -1,17 +1,55 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="@dimen/activity_margin"
     android:orientation="vertical">
 
-    <TextView
-        android:id="@+id/tvRestaurantName"
+    <LinearLayout
+        android:gravity="center_vertical"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        android:layout_height="match_parent"
+        android:orientation="horizontal">
 
-    <TextView
-        android:id="@+id/tvRestaurantDistance"
+        <TextView
+            android:id="@+id/tvRestaurantName"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:text="Hello"
+            android:textColor="@color/fake_black"
+            android:textSize="@dimen/big_text_size" />
+
+        <RatingBar
+            android:id="@+id/rbRestaurantStars"
+            style="@style/Widget.AppCompat.RatingBar.Small"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:numStars="5"
+            android:rating="3" />
+    </LinearLayout>
+
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:layout_marginTop="6dp"
+        android:orientation="horizontal">
 
+        <TextView
+            android:id="@+id/tvRestaurantDistance"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="10km"
+            android:textColor="@color/fake_black"
+            android:textSize="@dimen/regular_text_size" />
+
+        <TextView
+            android:id="@+id/tvRestaurantPrice"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="end"
+            android:text="0.00€"
+            android:textColor="@color/nutrium_green"
+            android:textSize="@dimen/regular_text_size" />
+    </LinearLayout>
 </LinearLayout>

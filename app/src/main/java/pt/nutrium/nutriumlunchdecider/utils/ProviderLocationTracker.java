@@ -1,0 +1,118 @@
+package pt.nutrium.nutriumlunchdecider.utils;
+
+import android.content.Context;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
+import android.os.Bundle;
+
+import androidx.core.location.LocationManagerCompat;
+
+public class ProviderLocationTracker implements LocationListener{
+
+    private static final long MIN_UPDATE_DISTANCE = 5; // em metros
+    private static final long MIN_UPDATE_TIME = 30000; // em ms
+
+    public enum ProviderType {
+        NETWORK, GPS
+    }
+
+    private final LocationManager lm;
+    private final String provider;
+
+    private Location lastLocation;
+    private long lastTime;
+    private boolean isRunning;
+
+    public ProviderLocationTracker(Context context, ProviderType type) {
+        lm = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
+        if (type == ProviderType.NETWORK)
+            provider = LocationManager.NETWORK_PROVIDER;
+        else
+            provider = LocationManager.GPS_PROVIDER;
+    }
+
+
+    public void start() {
+        if (!isRunning) {
+            isRunning = true;
+            lastLocation = null;
+            lastTime = 0;
+            lm.requestLocationUpdates(provider, MIN_UPDATE_TIME, MIN_UPDATE_DISTANCE, this);
+        }
+    }
+
+
+    public void stop() {
+        if (isRunning) {
+            lm.removeUpdates(this);
+            isRunning = false;
+        }
+    }
+
+
+    public boolean hasLocation() {
+        if (lastLocation == null) {
+            return false;
+        }
+        else if(System.currentTimeMillis() - lastTime > 5 * MIN_UPDATE_TIME)
+            // Não houve mais atualizações de posição
+            return false;
+        else
+            return true;
+    }
+
+
+    public boolean hasPossiblyStaleLocation() {
+        if (lastLocation != null) {
+            return true;
+        }
+        return lm.getLastKnownLocation(provider) != null;
+    }
+
+
+    public Location getLocation() {
+        if (lastLocation == null) {
+            return null;
+        }
+        if (System.currentTimeMillis() - lastTime > 5 * MIN_UPDATE_TIME) {
+            return null; //stale
+        }
+        return lastLocation;
+    }
+
+
+    public Location getPossiblyStaleLocation() {
+        if (lastLocation != null) {
+            return lastLocation;
+        }
+        return lm.getLastKnownLocation(provider);
+    }
+
+
+    public void onLocationChanged(Location newLoc) {
+        long now = System.currentTimeMillis();
+        lastLocation = newLoc;
+        lastTime = now;
+    }
+
+
+    public void onProviderDisabled(String arg0) {
+
+    }
+
+
+    public void onProviderEnabled(String arg0) {
+
+    }
+
+
+    public void onStatusChanged(String arg0, int arg1, Bundle arg2) {
+    }
+
+
+    public static boolean isLocationEnabled(final Context context) {
+        LocationManager locationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
+        return LocationManagerCompat.isLocationEnabled(locationManager);
+    }
+}
