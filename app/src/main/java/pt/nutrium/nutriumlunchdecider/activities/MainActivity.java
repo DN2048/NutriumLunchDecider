@@ -2,8 +2,10 @@ package pt.nutrium.nutriumlunchdecider.activities;
 
 import android.Manifest;
 import android.content.pm.PackageManager;
+import android.location.Location;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
@@ -17,14 +19,15 @@ import androidx.core.widget.ContentLoadingProgressBar;
 import java.util.ArrayList;
 
 import pt.nutrium.nutriumlunchdecider.R;
-import pt.nutrium.nutriumlunchdecider.utils.ProviderLocationTracker;
+import pt.nutrium.nutriumlunchdecider.utils.LocationProvider;
 
 public class MainActivity extends AppCompatActivity implements AsyncTaskListener {
+    private final static String TAG = "MACT";
     private final static int LOCATION_REQUEST_CODE = 100;
 
     private ContentLoadingProgressBar pbLoading;
-    private ProviderLocationTracker locGps;
-    private ProviderLocationTracker locNetwork;
+    private LocationProvider lpGps;
+    private LocationProvider lpNetwork;
 
 
     @Override
@@ -35,8 +38,8 @@ public class MainActivity extends AppCompatActivity implements AsyncTaskListener
         setSupportActionBar(toolbar);
 
         // iniciar variaveis
-        locGps = new ProviderLocationTracker(this, ProviderLocationTracker.ProviderType.GPS);
-        locNetwork = new ProviderLocationTracker(this, ProviderLocationTracker.ProviderType.NETWORK);
+        lpGps = new LocationProvider(this, LocationProvider.ProviderType.GPS);
+        lpNetwork = new LocationProvider(this, LocationProvider.ProviderType.NETWORK);
 
         // Atribuir views às variaveis
         pbLoading = findViewById(R.id.pbLoading);
@@ -51,10 +54,10 @@ public class MainActivity extends AppCompatActivity implements AsyncTaskListener
 
     @Override
     protected void onPause() {
-        if (locGps != null)
-            locGps.stop();
-        if (locNetwork != null)
-            locNetwork.stop();
+        if (lpGps != null)
+            lpGps.stop();
+        if (lpNetwork != null)
+            lpNetwork.stop();
         super.onPause();
     }
 
@@ -65,17 +68,35 @@ public class MainActivity extends AppCompatActivity implements AsyncTaskListener
         // Verificar se app tem permissões para aceder à localização
         if (checkLocationPermission()) {
             pbLoading.show();
-            mainTask(locGps, locNetwork, this).execute();
+            mainTask(lpGps, lpNetwork, this).execute();
         }
     }
 
 
-    private static AsyncTask<Void, Void, Void> mainTask(ProviderLocationTracker locGps, ProviderLocationTracker locNetwork, AsyncTaskListener listener) {
+    private static AsyncTask<Void, Void, Void> mainTask(LocationProvider lpGps, LocationProvider lpNetwork, AsyncTaskListener listener) {
         return new AsyncTask<Void, Void, Void>() {
             @Override
+            protected void onPreExecute() {
+                lpGps.start();
+                lpNetwork.start();
+            }
+
+            @Override
             protected Void doInBackground(Void... voids) {
-                locGps.start();
-                locNetwork.start();
+                // Verificar qual sistema devolve melhor precisão da localização (GPS ou rede)
+                Location lGps = lpGps.getLocation();
+                Location lNetwork = lpNetwork.getLocation();
+                if (lGps == null && lNetwork == null) {
+                    Log.d(TAG, "nada");
+                    return null;
+                }
+                float accGps = lGps == null ? LocationProvider.NO_LOCATION_ACCURACY : lGps.getAccuracy();
+                float accNetwork = lNetwork == null ? LocationProvider.NO_LOCATION_ACCURACY : lNetwork.getAccuracy();
+                // Ir buscar restaurantes baseado na posição do vencedor
+                if (accGps < accNetwork)
+                    Log.d(TAG, "GPS Wins: " + String.valueOf(accGps));
+                else
+                    Log.d(TAG, "Network Wins: " + String.valueOf(accNetwork));
 
                 return null;
             }
@@ -94,7 +115,6 @@ public class MainActivity extends AppCompatActivity implements AsyncTaskListener
     }
 
 
-
     /* MENU */
 
     @Override
@@ -108,20 +128,25 @@ public class MainActivity extends AppCompatActivity implements AsyncTaskListener
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
 
-        if (id == R.id.action_about) {
-            return true;
+        switch (id) {
+            case R.id.action_refresh:
+                findRestaurants();
+                return true;
+            case R.id.action_about:
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
         }
-        return super.onOptionsItemSelected(item);
     }
 
 
     /* PERMISSÕES */
 
     private boolean checkLocationPermission() {
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
             return true;
         } else {
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_COARSE_LOCATION}, LOCATION_REQUEST_CODE);
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, LOCATION_REQUEST_CODE);
             return false;
         }
     }

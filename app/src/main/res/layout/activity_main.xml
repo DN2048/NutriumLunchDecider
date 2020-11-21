@@ -29,7 +29,8 @@
             android:id="@+id/pbLoading"
             android:layout_gravity="bottom"
             android:layout_width="match_parent"
-            android:layout_height="4dp"
+            android:layout_height="wrap_content"
+            style="?android:attr/progressBarStyleHorizontal"
             android:indeterminate="true" />
         </FrameLayout>
     </com.google.android.material.appbar.AppBarLayout>
@@ -41,4 +42,5 @@
         android:layout_margin="@dimen/activity_margin"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintTop_toBottomOf="@id/app_bar" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>
