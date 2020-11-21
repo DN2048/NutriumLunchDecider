@@ -25,8 +25,10 @@ public class LocationProvider implements LocationListener {
     private Location lastLocation;
     private long lastTime;
     private boolean isRunning;
+    private LocationProviderInterface lpi;
 
-    public LocationProvider(Context context, ProviderType type) {
+    public LocationProvider(Context context, LocationProviderInterface lpi, ProviderType type) {
+        this.lpi = lpi;
         lm = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
         if (type == ProviderType.NETWORK)
             provider = LocationManager.NETWORK_PROVIDER;
@@ -95,6 +97,8 @@ public class LocationProvider implements LocationListener {
         long now = System.currentTimeMillis();
         lastLocation = newLoc;
         lastTime = now;
+        if (lpi != null)
+            lpi.locationUpdate(this);
     }
 
 

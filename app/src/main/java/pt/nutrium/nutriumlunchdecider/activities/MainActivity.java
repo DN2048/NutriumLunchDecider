@@ -30,9 +30,10 @@ import pt.nutrium.nutriumlunchdecider.R;
 import pt.nutrium.nutriumlunchdecider.adapters.RestaurantAdapter;
 import pt.nutrium.nutriumlunchdecider.models.Restaurant;
 import pt.nutrium.nutriumlunchdecider.utils.LocationProvider;
+import pt.nutrium.nutriumlunchdecider.utils.LocationProviderInterface;
 import pt.nutrium.nutriumlunchdecider.utils.ZomatoCommunicator;
 
-public class MainActivity extends AppCompatActivity implements AsyncTaskListener {
+public class MainActivity extends AppCompatActivity implements AsyncTaskListener, LocationProviderInterface {
     private final static String TAG = "MACT";
     private final static int LOCATION_REQUEST_CODE = 100;
 
@@ -52,24 +53,26 @@ public class MainActivity extends AppCompatActivity implements AsyncTaskListener
         setSupportActionBar(toolbar);
 
         // iniciar variaveis
-        lpGps = new LocationProvider(this, LocationProvider.ProviderType.GPS);
-        lpNetwork = new LocationProvider(this, LocationProvider.ProviderType.NETWORK);
+        lpGps = new LocationProvider(this, this, LocationProvider.ProviderType.GPS);
+        lpNetwork = new LocationProvider(this, this, LocationProvider.ProviderType.NETWORK);
+        lpGps.start();
+        lpNetwork.start();
 
         // Atribuir views às variaveis
         pbLoading = findViewById(R.id.pbLoading);
         tvToolbarSubtext = findViewById(R.id.tvToolbarSubtext);
+        tvIntroMessage = findViewById(R.id.tvIntroMessage);
         rvRestaurants = findViewById(R.id.rcRestaurants);
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
         rvRestaurants.setLayoutManager(layoutManager);
-        tvIntroMessage = findViewById(R.id.tvIntroMessage);
     }
 
 
     @Override
     protected void onResume() {
         super.onResume();
-        findRestaurants();
     }
+
 
     @Override
     protected void onPause() {
@@ -140,6 +143,13 @@ public class MainActivity extends AppCompatActivity implements AsyncTaskListener
             showSnackbar(getString(R.string.failed_to_get_restaurants));
 
         pbLoading.hide();
+    }
+
+
+    @Override
+    public void locationUpdate(LocationProvider lp) {
+        if (lp.getLocation() != null && rvRestaurants.getAdapter() == null)
+            findRestaurants();
     }
 
 
