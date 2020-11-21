@@ -7,5 +7,6 @@
     <string name="about_message">Challenge app for Nuno Aguiar from Nutrium.</string>
     <string name="help_message">This app shows open restaurants near you.\n\nTouch to open restaurant location in your GPS navigator.\nLongpress to add/remove to favourites.</string>
     <string name="km">Km</string>
-    <string name="failed_to_get_restaurants">Failed to get any information. Please make sure you have GPS turned on and access to the Internet.</string>
+    <string name="failed_to_get_restaurants">Failed to get any data. Please make sure you have GPS turned on and access to the Internet.</string>
+    <string name="waiting_for_gps">I know you are hungry but please wait for the app to get GPS signal…</string>
 </resources>

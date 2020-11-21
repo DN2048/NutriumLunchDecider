@@ -50,11 +50,23 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center"
+        android:layout_margin="@dimen/activity_margin"
         android:text="@string/intro_message"
         android:textColor="@color/fake_black"
         android:textSize="@dimen/big_text_size"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintTop_toBottomOf="@id/app_bar" />
+
+    <TextView
+        android:id="@+id/tvWaitingMessage"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:layout_margin="@dimen/activity_margin"
+        android:text="@string/waiting_for_gps"
+        android:textColor="@color/nutrium_green"
+        android:textSize="@dimen/big_text_size"
+        app:layout_constraintTop_toBottomOf="@id/tvIntroMessage" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rcRestaurants"

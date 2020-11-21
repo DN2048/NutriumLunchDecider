@@ -43,6 +43,7 @@ public class MainActivity extends AppCompatActivity implements AsyncTaskListener
     private LocationProvider lpNetwork;
     private RecyclerView rvRestaurants;
     private TextView tvIntroMessage;
+    private TextView tvWaitingMessage;
 
 
     @Override
@@ -62,6 +63,7 @@ public class MainActivity extends AppCompatActivity implements AsyncTaskListener
         pbLoading = findViewById(R.id.pbLoading);
         tvToolbarSubtext = findViewById(R.id.tvToolbarSubtext);
         tvIntroMessage = findViewById(R.id.tvIntroMessage);
+        tvWaitingMessage = findViewById(R.id.tvWaitingMessage);
         rvRestaurants = findViewById(R.id.rcRestaurants);
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
         rvRestaurants.setLayoutManager(layoutManager);
@@ -115,7 +117,7 @@ public class MainActivity extends AppCompatActivity implements AsyncTaskListener
                 }
                 float accGps = lGps == null ? LocationProvider.NO_LOCATION_ACCURACY : lGps.getAccuracy();
                 float accNetwork = lNetwork == null ? LocationProvider.NO_LOCATION_ACCURACY : lNetwork.getAccuracy();
-                // Ir buscar restaurantes baseado na posição do vencedor
+                // Ir buscar restaurantes baseado na localização do vencedor
                 ZomatoCommunicator zc = new ZomatoCommunicator(context);
                 if (accGps < accNetwork) {
                     Log.d(TAG, "GPS Wins: " + String.valueOf(accGps));
@@ -148,8 +150,10 @@ public class MainActivity extends AppCompatActivity implements AsyncTaskListener
 
     @Override
     public void locationUpdate(LocationProvider lp) {
-        if (lp.getLocation() != null && rvRestaurants.getAdapter() == null)
+        if (lp.getLocation() != null && rvRestaurants.getAdapter() == null) {
+            tvWaitingMessage.setVisibility(View.GONE);
             findRestaurants();
+        }
     }
 
 
