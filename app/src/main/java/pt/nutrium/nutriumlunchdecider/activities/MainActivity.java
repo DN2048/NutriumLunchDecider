@@ -44,6 +44,7 @@ public class MainActivity extends AppCompatActivity implements AsyncTaskListener
     private RecyclerView rvRestaurants;
     private TextView tvIntroMessage;
     private TextView tvWaitingMessage;
+    private RestaurantAdapter restaurantAdapter;
 
 
     @Override
@@ -140,7 +141,8 @@ public class MainActivity extends AppCompatActivity implements AsyncTaskListener
     public void onMainTaskCompleted(ArrayList<Restaurant> restaurants) {
         if (restaurants != null) {
             tvIntroMessage.setVisibility(View.GONE);
-            rvRestaurants.setAdapter(new RestaurantAdapter(this, restaurants));
+            restaurantAdapter = new RestaurantAdapter(this, restaurants);
+            rvRestaurants.setAdapter(restaurantAdapter);
         } else
             showSnackbar(getString(R.string.failed_to_get_restaurants));
 
@@ -173,6 +175,14 @@ public class MainActivity extends AppCompatActivity implements AsyncTaskListener
         switch (id) {
             case R.id.action_refresh:
                 findRestaurants();
+                return true;
+            case R.id.action_sort_price:
+                if (restaurantAdapter != null)
+                    restaurantAdapter.sortRestaurants(Restaurant.compareByPrice);
+                return true;
+            case R.id.action_sort_distance:
+                if (restaurantAdapter != null)
+                    restaurantAdapter.sortRestaurants(Restaurant.compareByDistance);
                 return true;
             case R.id.action_help:
                 showDialog(getString(R.string.action_help), getString(R.string.help_message));

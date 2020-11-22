@@ -6,20 +6,25 @@ import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.RatingBar;
 import android.widget.TextView;
 
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Locale;
 
 import pt.nutrium.nutriumlunchdecider.R;
 import pt.nutrium.nutriumlunchdecider.models.Restaurant;
 
-public class RestaurantAdapter extends RecyclerView.Adapter<RestaurantAdapter.RestaurantAdapterHolder> implements View.OnClickListener {
+public class RestaurantAdapter extends RecyclerView.Adapter<RestaurantAdapter.RestaurantAdapterHolder> implements View.OnClickListener, View.OnLongClickListener {
     private final ArrayList<Restaurant> restaurants;
     private final Context context;
+    private Comparator<Restaurant> lastComparatorUsed;
+    private boolean sortAsc;
 
 
     public RestaurantAdapter(final Context context, final ArrayList<Restaurant> restaurants) {
@@ -32,6 +37,7 @@ public class RestaurantAdapter extends RecyclerView.Adapter<RestaurantAdapter.Re
     public RestaurantAdapterHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.layout_restaurant, parent, false);
         v.setOnClickListener(this);
+        v.setOnLongClickListener(this);
         return new RestaurantAdapterHolder(v);
     }
 
@@ -45,6 +51,8 @@ public class RestaurantAdapter extends RecyclerView.Adapter<RestaurantAdapter.Re
         holder.stars.setRating((float) restaurant.getStars());
         holder.address.setText(restaurant.getAddress());
         holder.cuisines.setText(restaurant.getCuisines());
+        holder.favourite.setVisibility(restaurant.isFavourite() ? View.VISIBLE : View.GONE);
+
         holder.itemView.setTag(position);
     }
 
@@ -63,6 +71,31 @@ public class RestaurantAdapter extends RecyclerView.Adapter<RestaurantAdapter.Re
     }
 
 
+    @Override
+    public boolean onLongClick(View view) {
+        int p = Integer.parseInt(view.getTag().toString());
+        restaurants.get(p).toggleFavourite();
+        this.notifyItemChanged(p);
+        return true;
+    }
+
+
+    public void sortRestaurants(Comparator<Restaurant> comparator) {
+        // Só alterar a ordenação se o comparator for o mesmo (ex: para evitar de ordenação por preços ASC para distancia DESC)
+        if (comparator != lastComparatorUsed)
+            lastComparatorUsed = comparator;
+        else
+            sortAsc = !sortAsc;
+
+        if (sortAsc)
+            Collections.sort(restaurants, comparator);
+        else
+            Collections.sort(restaurants, Collections.reverseOrder(comparator));
+
+        this.notifyDataSetChanged();
+    }
+
+
     static class RestaurantAdapterHolder extends RecyclerView.ViewHolder {
 
         protected TextView name;
@@ -71,6 +104,7 @@ public class RestaurantAdapter extends RecyclerView.Adapter<RestaurantAdapter.Re
         protected RatingBar stars;
         protected TextView cuisines;
         protected TextView address;
+        protected ImageView favourite;
 
         public RestaurantAdapterHolder(View itemView) {
             super(itemView);
@@ -80,6 +114,7 @@ public class RestaurantAdapter extends RecyclerView.Adapter<RestaurantAdapter.Re
             stars = itemView.findViewById(R.id.rbRestaurantStars);
             cuisines = itemView.findViewById(R.id.tvRestaurantCuisines);
             address = itemView.findViewById(R.id.tvRestaurantAddress);
+            favourite = itemView.findViewById(R.id.ivFavourite);
         }
     }
 }

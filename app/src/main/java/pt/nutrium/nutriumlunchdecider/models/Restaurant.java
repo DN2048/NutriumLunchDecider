@@ -4,6 +4,8 @@ import android.text.TextUtils;
 
 import org.json.JSONObject;
 
+import java.util.Comparator;
+
 import pt.nutrium.nutriumlunchdecider.utils.LocationProvider;
 
 public class Restaurant {
@@ -16,6 +18,7 @@ public class Restaurant {
     private double distance;
     private double price;
     private double stars;
+    private boolean favourite;
 
 
     public Restaurant() {
@@ -48,7 +51,25 @@ public class Restaurant {
     }
 
 
-    /* GETS */
+    /* COMPARADORES */
+
+    public static Comparator<Restaurant> compareByPrice = new Comparator<Restaurant>() {
+        @Override
+        public int compare(Restaurant r1, Restaurant r2) {
+            return Double.compare(r2.getPrice(), r1.getPrice());
+        }
+    };
+
+
+    public static Comparator<Restaurant> compareByDistance = new Comparator<Restaurant>() {
+        @Override
+        public int compare(Restaurant r1, Restaurant r2) {
+            return Double.compare(r2.getDistance(), r1.getDistance());
+        }
+    };
+
+
+    /* GETS E SETS */
 
     public String getId() {
         return id;
@@ -83,5 +104,13 @@ public class Restaurant {
 
     public double getStars() {
         return stars;
+    }
+
+    public boolean isFavourite() {
+        return favourite;
+    }
+
+    public void toggleFavourite() {
+        favourite = !favourite;
     }
 }
