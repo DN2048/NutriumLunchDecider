@@ -82,7 +82,7 @@ public class MainActivity extends AppCompatActivity implements LocationProviderI
         else
             restaurants = new HashMap<>();
 
-       startLocationProviders();
+        startLocationProviders();
     }
 
 
@@ -111,8 +111,7 @@ public class MainActivity extends AppCompatActivity implements LocationProviderI
 
     /* ROTINAS */
 
-    private void startLocationProviders()
-    {
+    private void startLocationProviders() {
         // Verificar se app tem permissões para aceder à localização
         if (checkLocationPermission()) {
             lpGps.start();
@@ -226,7 +225,7 @@ public class MainActivity extends AppCompatActivity implements LocationProviderI
         if (lp.getLocation() != null && !foundLocation) {
             foundLocation = true;
             tvWaitingMessage.setVisibility(View.GONE);
-            startLocationProviders();
+            findRestaurants();
         }
     }
 

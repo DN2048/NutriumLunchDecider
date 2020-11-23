@@ -12,7 +12,7 @@ public class LocationProvider implements LocationListener {
 
     private static final long MIN_UPDATE_DISTANCE = 5; // em metros
     private static final long MIN_UPDATE_TIME = 15000; // em ms
-    private static final long STALE_THRESHOLD = MIN_UPDATE_TIME * 5;
+    private static final long STALE_THRESHOLD = MIN_UPDATE_TIME * 4 * 5; // = 5 minutos
     public static final float NO_LOCATION_ACCURACY = 9999;
 
     public enum ProviderType {

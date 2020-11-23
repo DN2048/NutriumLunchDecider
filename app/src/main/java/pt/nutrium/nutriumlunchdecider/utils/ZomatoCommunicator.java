@@ -26,7 +26,7 @@ import pt.nutrium.nutriumlunchdecider.models.Restaurant;
 public class ZomatoCommunicator {
     private final static String TAG = "ZC";
     private final static String KEY = "3b7dea60af428d2f8daeb80f7dd4bd37";
-    private final static int TIMEOUT = 15000; // em ms
+    private final static int TIMEOUT = 10000; // em ms
 
     private final static String BASE_URL = "https://developers.zomato.com/api/v2.1/";
     private final static String GET_GEOCODE = "geocode?lat=%f&lon=%f";
@@ -41,7 +41,7 @@ public class ZomatoCommunicator {
 
 
     public HashMap<String, Restaurant> getRestaurants(double latitude, double longitude) {
-        JSONObject jData = requestSyncJsonResponse(String.format(Locale.getDefault(), GET_GEOCODE, latitude, longitude));
+        JSONObject jData = requestSyncJsonResponse(String.format(Locale.US, GET_GEOCODE, latitude, longitude)); // usar locale.US para irem pontos em vez de virgulas
         if (jData != null) {
             // Processar localização
             try {
@@ -78,7 +78,7 @@ public class ZomatoCommunicator {
     private JSONObject requestSyncJsonResponse(final String url) {
         RequestFuture<JSONObject> future = RequestFuture.newFuture();
         CommJsonRequest request = new CommJsonRequest(String.format("%s%s", BASE_URL, url), future, future);
-        requestQueue.add(request);
+        future.setRequest(requestQueue.add(request));
 
         try {
             return future.get(TIMEOUT, TimeUnit.MILLISECONDS);
@@ -99,7 +99,7 @@ public class ZomatoCommunicator {
 
         public CommJsonRequest(final String url, final Response.Listener<JSONObject> listener, final Response.ErrorListener errorListener) {
             super(Request.Method.GET, url, null, listener, errorListener);
-            setRetryPolicy(new DefaultRetryPolicy(TIMEOUT, 1, 1));
+            setRetryPolicy(new DefaultRetryPolicy(TIMEOUT, 1, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
         }
 
 
