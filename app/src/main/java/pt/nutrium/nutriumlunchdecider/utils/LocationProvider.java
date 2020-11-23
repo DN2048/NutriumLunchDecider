@@ -1,19 +1,19 @@
 package pt.nutrium.nutriumlunchdecider.utils;
 
 import android.content.Context;
+import android.location.GpsStatus;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
 
-import androidx.core.location.LocationManagerCompat;
-
-public class LocationProvider implements LocationListener {
-
+public class LocationProvider implements LocationListener, GpsStatus.Listener {
+    private static final String TAG = "LP";
     private static final long MIN_UPDATE_DISTANCE = 5; // em metros
     private static final long MIN_UPDATE_TIME = 15000; // em ms
     private static final long STALE_THRESHOLD = MIN_UPDATE_TIME * 4 * 5; // = 5 minutos
     public static final float NO_LOCATION_ACCURACY = 9999;
+
 
     public enum ProviderType {
         NETWORK, GPS
@@ -43,6 +43,7 @@ public class LocationProvider implements LocationListener {
             lastLocation = null;
             lastTime = 0;
             lm.requestLocationUpdates(provider, MIN_UPDATE_TIME, MIN_UPDATE_DISTANCE, this);
+            lm.addGpsStatusListener(this);
         }
     }
 
@@ -116,9 +117,10 @@ public class LocationProvider implements LocationListener {
     }
 
 
-    public static boolean isLocationEnabled(final Context context) {
-        LocationManager locationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
-        return LocationManagerCompat.isLocationEnabled(locationManager);
+    @Override
+    public void onGpsStatusChanged(int status) {
+        if (status == GpsStatus.GPS_EVENT_STARTED)
+            lpi.locationServicesTurnedOn();
     }
 
 

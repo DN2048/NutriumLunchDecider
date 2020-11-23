@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Nutrium Find My Lunch</string>
+    <string name="action_about">Sobre</string>
+    <string name="action_refresh">Atualizar</string>
+    <string name="action_help">Ajuda</string>
+    <string name="km">Km</string>
+    <string name="action_sort_price">Ordenar por Preço</string>
+    <string name="action_sort_distance">Ordenar por Distância</string>
+    <string name="about_message">App desafio proposta pela Nutrium para Nuno Aguiar.</string>
+    <string name="intro_message">Certifica-te que tens o GPS ligado e uma conecção à Internet.</string>
+    <string name="failed_to_get_restaurants">Não tens acesso à Internet ou não existem restaurantes por perto.</string>
+    <string name="failed_to_get_location">Não foi possível obter a localização. Certifica-te que tens o GPS ligado.</string>
+    <string name="waiting_for_gps">Eu sei que tens fome mas aguarda que a app apanhe sinal GPS…</string>
+    <string name="help_message">Este app apresenta os restaurantes perto de ti.\n\nToca no restaurante para abrir a sua localização no teu navegador GPS.\nToque longo para adicionar/remover o restaurante aos teus favoritos.</string>
+</resources>

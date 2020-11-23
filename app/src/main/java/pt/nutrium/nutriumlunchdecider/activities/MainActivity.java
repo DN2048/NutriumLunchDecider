@@ -81,23 +81,19 @@ public class MainActivity extends AppCompatActivity implements LocationProviderI
             mainTaskCompleted();
         else
             restaurants = new HashMap<>();
-
-        startLocationProviders();
     }
 
 
     @Override
     protected void onResume() {
         super.onResume();
+        startLocationProviders();
     }
 
 
     @Override
     protected void onPause() {
-        if (lpGps != null)
-            lpGps.stop();
-        if (lpNetwork != null)
-            lpNetwork.stop();
+        stopLocationProviders();
         super.onPause();
     }
 
@@ -117,6 +113,14 @@ public class MainActivity extends AppCompatActivity implements LocationProviderI
             lpGps.start();
             lpNetwork.start();
         }
+    }
+
+
+    private void stopLocationProviders() {
+        if (lpGps != null)
+            lpGps.stop();
+        if (lpNetwork != null)
+            lpNetwork.stop();
     }
 
 
@@ -227,6 +231,12 @@ public class MainActivity extends AppCompatActivity implements LocationProviderI
             tvWaitingMessage.setVisibility(View.GONE);
             findRestaurants();
         }
+    }
+
+
+    @Override
+    public void locationServicesTurnedOn() {
+        startLocationProviders();
     }
 
 
