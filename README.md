@@ -10,4 +10,6 @@ The list will be populated with the restaurants nearby. Touch them to open them 
 This app uses the Zomato API to get the restaurants nearby and calculates the distance to them in a straight line.
 In the menu bar it will show the location near you where Zomato has restaurant information.
 
+App is in English and Portuguese (Portugal)
+
 Tested on Android 10 (emulator) and Android 6.0 (real device).
