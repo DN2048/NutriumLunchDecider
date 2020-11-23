@@ -21,15 +21,17 @@ import pt.nutrium.nutriumlunchdecider.R;
 import pt.nutrium.nutriumlunchdecider.models.Restaurant;
 
 public class RestaurantAdapter extends RecyclerView.Adapter<RestaurantAdapter.RestaurantAdapterHolder> implements View.OnClickListener, View.OnLongClickListener {
-    private final ArrayList<Restaurant> restaurants;
+    private ArrayList<Restaurant> restaurants;
     private final Context context;
+    private final RestaurantAdapterInterface rai;
     private Comparator<Restaurant> lastComparatorUsed;
     private boolean sortAsc;
 
 
-    public RestaurantAdapter(final Context context, final ArrayList<Restaurant> restaurants) {
+    public RestaurantAdapter(final Context context, final RestaurantAdapterInterface rai, final ArrayList<Restaurant> restaurants) {
         this.context = context;
         this.restaurants = restaurants;
+        this.rai = rai;
     }
 
 
@@ -46,7 +48,10 @@ public class RestaurantAdapter extends RecyclerView.Adapter<RestaurantAdapter.Re
     public void onBindViewHolder(RestaurantAdapterHolder holder, int position) {
         Restaurant restaurant = restaurants.get(position);
         holder.name.setText(restaurant.getName());
-        holder.distance.setText(String.format(Locale.getDefault(), "%.2f %s", restaurant.getDistance(), context.getString(R.string.km)));
+        if (restaurant.getDistance() < 0)
+            holder.distance.setText(String.format("-- %s", context.getString(R.string.km)));
+        else
+            holder.distance.setText(String.format(Locale.getDefault(), "%.2f %s", restaurant.getDistance(), context.getString(R.string.km)));
         holder.price.setText(String.format(Locale.getDefault(), "%s%.2f", restaurant.getCurrency(), restaurant.getPrice()));
         holder.stars.setRating((float) restaurant.getStars());
         holder.address.setText(restaurant.getAddress());
@@ -75,6 +80,7 @@ public class RestaurantAdapter extends RecyclerView.Adapter<RestaurantAdapter.Re
     public boolean onLongClick(View view) {
         int p = Integer.parseInt(view.getTag().toString());
         restaurants.get(p).toggleFavourite();
+        rai.favouriteChanged(restaurants.get(p));
         this.notifyItemChanged(p);
         return true;
     }
@@ -91,6 +97,19 @@ public class RestaurantAdapter extends RecyclerView.Adapter<RestaurantAdapter.Re
             Collections.sort(restaurants, comparator);
         else
             Collections.sort(restaurants, Collections.reverseOrder(comparator));
+
+        this.notifyDataSetChanged();
+    }
+
+
+    public void updateRestaurants(ArrayList<Restaurant> restaurants) {
+        this.restaurants = restaurants;
+        // Voltar a ordenar
+        if (lastComparatorUsed != null)
+            if (sortAsc)
+                Collections.sort(restaurants, lastComparatorUsed);
+            else
+                Collections.sort(restaurants, Collections.reverseOrder(lastComparatorUsed));
 
         this.notifyDataSetChanged();
     }

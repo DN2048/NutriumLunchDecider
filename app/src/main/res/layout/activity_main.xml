@@ -24,8 +24,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_gravity="bottom"
-                android:paddingLeft="8dp"
-                android:paddingBottom="8dp"
+                android:paddingLeft="@dimen/activity_margin"
+                android:paddingBottom="2dp"
                 android:textColor="@color/fake_white"
                 android:textSize="@dimen/small_text_size" />
 
@@ -35,7 +35,7 @@
                 android:layout_height="match_parent"
                 app:popupTheme="@style/Theme.NutriumLunchDecider.PopupOverlay" />
 
-            <androidx.core.widget.ContentLoadingProgressBar
+            <ProgressBar
                 android:id="@+id/pbLoading"
                 style="?android:attr/progressBarStyleHorizontal"
                 android:layout_width="match_parent"

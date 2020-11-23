@@ -1,7 +1,6 @@
 package pt.nutrium.nutriumlunchdecider.activities;
 
 import android.Manifest;
-import android.content.Context;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.AsyncTask;
@@ -10,6 +9,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -18,33 +18,40 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
-import androidx.core.widget.ContentLoadingProgressBar;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.snackbar.Snackbar;
 
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import pt.nutrium.nutriumlunchdecider.R;
 import pt.nutrium.nutriumlunchdecider.adapters.RestaurantAdapter;
+import pt.nutrium.nutriumlunchdecider.adapters.RestaurantAdapterInterface;
 import pt.nutrium.nutriumlunchdecider.models.Restaurant;
+import pt.nutrium.nutriumlunchdecider.utils.LocalDatabase;
 import pt.nutrium.nutriumlunchdecider.utils.LocationProvider;
 import pt.nutrium.nutriumlunchdecider.utils.LocationProviderInterface;
 import pt.nutrium.nutriumlunchdecider.utils.ZomatoCommunicator;
 
-public class MainActivity extends AppCompatActivity implements AsyncTaskListener, LocationProviderInterface {
+public class MainActivity extends AppCompatActivity implements LocationProviderInterface, RestaurantAdapterInterface {
     private final static String TAG = "MACT";
     private final static int LOCATION_REQUEST_CODE = 100;
 
-    private ContentLoadingProgressBar pbLoading;
+    private ProgressBar pbLoading;
     private TextView tvToolbarSubtext;
-    private LocationProvider lpGps;
-    private LocationProvider lpNetwork;
     private RecyclerView rvRestaurants;
     private TextView tvIntroMessage;
     private TextView tvWaitingMessage;
+
+    private LocalDatabase localDb;
+    private LocationProvider lpGps;
+    private LocationProvider lpNetwork;
+    private HashMap<String, Restaurant> restaurants;
     private RestaurantAdapter restaurantAdapter;
+    private boolean foundLocation;
 
 
     @Override
@@ -55,10 +62,9 @@ public class MainActivity extends AppCompatActivity implements AsyncTaskListener
         setSupportActionBar(toolbar);
 
         // iniciar variaveis
+        localDb = new LocalDatabase(this);
         lpGps = new LocationProvider(this, this, LocationProvider.ProviderType.GPS);
         lpNetwork = new LocationProvider(this, this, LocationProvider.ProviderType.NETWORK);
-        lpGps.start();
-        lpNetwork.start();
 
         // Atribuir views às variaveis
         pbLoading = findViewById(R.id.pbLoading);
@@ -68,6 +74,15 @@ public class MainActivity extends AppCompatActivity implements AsyncTaskListener
         rvRestaurants = findViewById(R.id.rcRestaurants);
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
         rvRestaurants.setLayoutManager(layoutManager);
+
+        // Carregar favoritos se existirem
+        restaurants = localDb.getFavouriteRestaurants();
+        if (restaurants != null)
+            mainTaskCompleted();
+        else
+            restaurants = new HashMap<>();
+
+       startLocationProviders();
     }
 
 
@@ -87,75 +102,141 @@ public class MainActivity extends AppCompatActivity implements AsyncTaskListener
     }
 
 
+    @Override
+    protected void onStop() {
+        localDb.close();
+        super.onStop();
+    }
+
+
     /* ROTINAS */
 
-    private void findRestaurants() {
+    private void startLocationProviders()
+    {
         // Verificar se app tem permissões para aceder à localização
         if (checkLocationPermission()) {
-            pbLoading.show();
-            tvToolbarSubtext.setText("");
-            mainTask(this, lpGps, lpNetwork, this).execute();
+            lpGps.start();
+            lpNetwork.start();
         }
     }
 
 
-    private static AsyncTask<Void, Void, ArrayList<Restaurant>> mainTask(final Context context, final LocationProvider lpGps, final LocationProvider lpNetwork, final AsyncTaskListener listener) {
-        return new AsyncTask<Void, Void, ArrayList<Restaurant>>() {
+    private void findRestaurants() {
+
+        if (checkLocationPermission()) {
+            pbLoading.setVisibility(View.VISIBLE);
+            tvToolbarSubtext.setText("");
+            mainTask(this).execute();
+        }
+    }
+
+
+    private static AsyncTask<Void, String, Integer> mainTask(MainActivity mainActivity) {
+        return new AsyncTask<Void, String, Integer>() {
+            final WeakReference<MainActivity> activityRef = new WeakReference<>(mainActivity);
+
             @Override
             protected void onPreExecute() {
-                lpGps.start();
-                lpNetwork.start();
+                final MainActivity main = activityRef.get();
             }
 
             @Override
-            protected ArrayList<Restaurant> doInBackground(Void... voids) {
+            protected Integer doInBackground(Void... voids) {
+                final MainActivity main = activityRef.get();
                 // Verificar qual sistema devolve melhor precisão da localização (GPS ou rede)
-                Location lGps = lpGps.getLocation();
-                Location lNetwork = lpNetwork.getLocation();
+                Location lGps = main.lpGps.getLocation();
+                Location lNetwork = main.lpNetwork.getLocation();
                 if (lGps == null && lNetwork == null) {
-                    Log.d(TAG, "nada");
-                    return null;
+                    // Sem gps
+                    return 1;
                 }
                 float accGps = lGps == null ? LocationProvider.NO_LOCATION_ACCURACY : lGps.getAccuracy();
                 float accNetwork = lNetwork == null ? LocationProvider.NO_LOCATION_ACCURACY : lNetwork.getAccuracy();
                 // Ir buscar restaurantes baseado na localização do vencedor
-                ZomatoCommunicator zc = new ZomatoCommunicator(context);
+                HashMap<String, Restaurant> newRestaurants;
+                ZomatoCommunicator zc = new ZomatoCommunicator(main);
                 if (accGps < accNetwork) {
                     Log.d(TAG, "GPS Wins: " + String.valueOf(accGps));
-                    return zc.getRestaurants(lGps.getLatitude(), lGps.getLongitude());
+                    newRestaurants = zc.getRestaurants(lGps.getLatitude(), lGps.getLongitude());
                 } else {
                     Log.d(TAG, "Network Wins: " + String.valueOf(accNetwork));
-                    return zc.getRestaurants(lNetwork.getLatitude(), lNetwork.getLongitude());
+                    newRestaurants = zc.getRestaurants(lNetwork.getLatitude(), lNetwork.getLongitude());
                 }
+                // Apresentar localização de a apanhou
+                publishProgress(zc.getMyLocation());
+                // Se foi possivel obter os restaurantes, juntar/atualizar com os atuais
+                if (newRestaurants != null) {
+                    for (String key : newRestaurants.keySet()) {
+                        Restaurant newRestaurant = newRestaurants.get(key);
+                        if (main.restaurants.containsKey(key)) {
+                            // Restaurante já existe na lista, atualizar
+                            if (main.restaurants.put(key, newRestaurants.get(key)).isFavourite()) {
+                                // Ja existe e é um favorito. Atualizar na bd local tambem
+                                newRestaurant.setFavourite(true);
+                                main.localDb.updateFavouriteRestaurant(newRestaurant);
+                            }
+                        } else {
+                            // Restaurante não existe na lista. Inserir.
+                            main.restaurants.put(newRestaurant.getId(), newRestaurant);
+                        }
+                    }
+                    // tudo ok
+                    return 0;
+                } else
+                    // Sem net ou não encontrou restaurantes perto
+                    return 2;
             }
 
             @Override
-            protected void onPostExecute(ArrayList<Restaurant> restaurants) {
-                listener.onMainTaskCompleted(restaurants);
+            protected void onProgressUpdate(String... values) {
+                final MainActivity main = activityRef.get();
+                main.tvToolbarSubtext.setText(values[0]);
+            }
+
+            @Override
+            protected void onPostExecute(Integer result) {
+                final MainActivity main = activityRef.get();
+                main.mainTaskCompleted();
+                if (result == 1) // sem gps
+                    main.showSnackbar(main.getString(R.string.failed_to_get_location));
+                else if (result == 2) // sem net ou nao ha restaurantes
+                    main.showSnackbar(main.getString(R.string.failed_to_get_restaurants));
             }
         };
     }
 
 
-    @Override
-    public void onMainTaskCompleted(ArrayList<Restaurant> restaurants) {
-        if (restaurants != null) {
+    void mainTaskCompleted() {
+        if (restaurants.size() > 0) {
             tvIntroMessage.setVisibility(View.GONE);
-            restaurantAdapter = new RestaurantAdapter(this, restaurants);
-            rvRestaurants.setAdapter(restaurantAdapter);
-        } else
-            showSnackbar(getString(R.string.failed_to_get_restaurants));
+            if (restaurantAdapter == null) {
+                restaurantAdapter = new RestaurantAdapter(this, this, new ArrayList<>(restaurants.values()));
+                rvRestaurants.setAdapter(restaurantAdapter);
+            } else {
+                restaurantAdapter.updateRestaurants(new ArrayList<>(restaurants.values()));
+            }
+        }
 
-        pbLoading.hide();
+        pbLoading.setVisibility(View.GONE);
     }
 
 
     @Override
     public void locationUpdate(LocationProvider lp) {
-        if (lp.getLocation() != null && rvRestaurants.getAdapter() == null) {
+        if (lp.getLocation() != null && !foundLocation) {
+            foundLocation = true;
             tvWaitingMessage.setVisibility(View.GONE);
-            findRestaurants();
+            startLocationProviders();
         }
+    }
+
+
+    @Override
+    public void favouriteChanged(Restaurant restaurant) {
+        if (restaurant.isFavourite())
+            localDb.insertFavouriteRestaurant(restaurant);
+        else
+            localDb.deleteFavouriteRestaurant(restaurant.getId());
     }
 
 

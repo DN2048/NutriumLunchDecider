@@ -1,14 +1,40 @@
 package pt.nutrium.nutriumlunchdecider.models;
 
+import android.database.Cursor;
 import android.text.TextUtils;
 
 import org.json.JSONObject;
 
 import java.util.Comparator;
+import java.util.LinkedHashMap;
 
+import pt.nutrium.nutriumlunchdecider.utils.LocalDatabase;
 import pt.nutrium.nutriumlunchdecider.utils.LocationProvider;
 
 public class Restaurant {
+    public static final String DB_ID = "id";
+    public static final String DB_NAME = "name";
+    public static final String DB_ADDRESS = "address";
+    public static final String DB_CUISINES = "cuisines";
+    public static final String DB_CURRENCY = "currency";
+    public static final String DB_PRICE = "price";
+    public static final String DB_STARS = "stars";
+
+    public static LinkedHashMap<String, String> sqlTableFields() {
+        LinkedHashMap<String, String> fields = new LinkedHashMap<>();
+        {
+            fields.put(DB_ID, "TEXT PRIMARY KEY NOT NULL");
+            fields.put(DB_NAME, "TEXT DEFAULT NULL");
+            fields.put(DB_ADDRESS, "TEXT DEFAULT NULL");
+            fields.put(DB_CUISINES, "TEXT DEFAULT NULL");
+            fields.put(DB_CURRENCY, "TEXT DEFAULT €");
+            fields.put(DB_PRICE, "REAL DEFAULT 0");
+            fields.put(DB_STARS, "REAL DEFAULT 0");
+        }
+
+        return fields;
+    }
+
 
     private String id;
     private String name;
@@ -21,8 +47,21 @@ public class Restaurant {
     private boolean favourite;
 
 
-    public Restaurant() {
-
+    /**
+     * Contructor do objecto apartir da BD
+     *
+     * @param cursor    cursor aberto da db
+     */
+    public Restaurant(Cursor cursor) {
+        id = LocalDatabase.getValueString(cursor, DB_ID);
+        name = LocalDatabase.getValueString(cursor, DB_NAME);
+        address = LocalDatabase.getValueString(cursor, DB_ADDRESS);
+        cuisines = LocalDatabase.getValueString(cursor, DB_CUISINES);
+        currency = LocalDatabase.getValueString(cursor, DB_CURRENCY);
+        distance = -1;
+        price = LocalDatabase.getValueDouble(cursor, DB_PRICE);
+        stars = LocalDatabase.getValueDouble(cursor, DB_STARS);
+        favourite = true;
     }
 
 
@@ -108,6 +147,10 @@ public class Restaurant {
 
     public boolean isFavourite() {
         return favourite;
+    }
+
+    public void setFavourite(boolean favourite) {
+        this.favourite = favourite;
     }
 
     public void toggleFavourite() {

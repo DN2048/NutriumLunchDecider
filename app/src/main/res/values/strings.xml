@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Nutrium Lunch Decider</string>
+    <string name="app_name">Nutrium Find My Lunch</string>
     <string name="action_about">About</string>
     <string name="action_refresh">Refresh</string>
     <string name="action_help">Help</string>
@@ -7,7 +7,8 @@
     <string name="about_message">Challenge app from Nutrium to Nuno Aguiar.</string>
     <string name="help_message">This app shows open restaurants near you.\n\nTouch to open the restaurant\'s location in your GPS navigator.\nLongpress to add/remove to favourites.</string>
     <string name="km">Km</string>
-    <string name="failed_to_get_restaurants">Failed to get any data. Please make sure you have GPS turned on and access to the Internet.</string>
+    <string name="failed_to_get_restaurants">You don\'t  have access to the Internet or there aren\'t restaurants nearby.</string>
+    <string name="failed_to_get_location">Failed to get location. Please make sure you have the GPS turned on.</string>
     <string name="waiting_for_gps">I know you are hungry but please wait for the app to get GPS signal…</string>
     <string name="action_sort_distance">Sort by Distance</string>
     <string name="action_sort_price">Sort by Price</string>
