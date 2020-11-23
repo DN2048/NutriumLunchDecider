@@ -14,6 +14,7 @@
 
         <ImageView
             android:id="@+id/ivFavourite"
+            android:contentDescription="@string/favourite"
             android:visibility="gone"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
@@ -55,7 +56,7 @@
             android:id="@+id/tvRestaurantPrice"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="@dimen/margin_fields"
+            android:layout_marginStart="@dimen/margin_fields"
             android:textColor="@color/nutrium_green"
             android:textSize="@dimen/regular_text_size" />
     </LinearLayout>
@@ -78,7 +79,7 @@
             android:id="@+id/tvRestaurantDistance"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="@dimen/margin_fields"
+            android:layout_marginStart="@dimen/margin_fields"
             android:textColor="@color/fake_black"
             android:textSize="@dimen/regular_text_size" />
 

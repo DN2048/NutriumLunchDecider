@@ -50,7 +50,7 @@ public class Restaurant {
     /**
      * Contructor do objecto apartir da BD
      *
-     * @param cursor    cursor aberto da db
+     * @param cursor cursor aberto da db
      */
     public Restaurant(Cursor cursor) {
         id = LocalDatabase.getValueString(cursor, DB_ID);
@@ -85,14 +85,14 @@ public class Restaurant {
             currency = json.optString("currency");
             JSONObject jUserRating = json.getJSONObject("user_rating");
             stars = jUserRating.getDouble("aggregate_rating");
-        } catch (Exception ex) {
+        } catch (Exception ignored) {
         }
     }
 
 
     /* COMPARADORES */
 
-    public static Comparator<Restaurant> compareByPrice = new Comparator<Restaurant>() {
+    public static final Comparator<Restaurant> compareByPrice = new Comparator<Restaurant>() {
         @Override
         public int compare(Restaurant r1, Restaurant r2) {
             return Double.compare(r2.getPrice(), r1.getPrice());
@@ -100,7 +100,7 @@ public class Restaurant {
     };
 
 
-    public static Comparator<Restaurant> compareByDistance = new Comparator<Restaurant>() {
+    public static final Comparator<Restaurant> compareByDistance = new Comparator<Restaurant>() {
         @Override
         public int compare(Restaurant r1, Restaurant r2) {
             return Double.compare(r2.getDistance(), r1.getDistance());

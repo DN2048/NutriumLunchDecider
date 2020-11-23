@@ -10,6 +10,7 @@ import android.widget.ImageView;
 import android.widget.RatingBar;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
@@ -35,6 +36,7 @@ public class RestaurantAdapter extends RecyclerView.Adapter<RestaurantAdapter.Re
     }
 
 
+    @NonNull
     @Override
     public RestaurantAdapterHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.layout_restaurant, parent, false);
@@ -117,13 +119,13 @@ public class RestaurantAdapter extends RecyclerView.Adapter<RestaurantAdapter.Re
 
     static class RestaurantAdapterHolder extends RecyclerView.ViewHolder {
 
-        protected TextView name;
-        protected TextView distance;
-        protected TextView price;
-        protected RatingBar stars;
-        protected TextView cuisines;
-        protected TextView address;
-        protected ImageView favourite;
+        protected final TextView name;
+        protected final TextView distance;
+        protected final TextView price;
+        protected final RatingBar stars;
+        protected final TextView cuisines;
+        protected final TextView address;
+        protected final ImageView favourite;
 
         public RestaurantAdapterHolder(View itemView) {
             super(itemView);

@@ -5,7 +5,6 @@ import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -139,11 +138,6 @@ public class MainActivity extends AppCompatActivity implements LocationProviderI
             final WeakReference<MainActivity> activityRef = new WeakReference<>(mainActivity);
 
             @Override
-            protected void onPreExecute() {
-                final MainActivity main = activityRef.get();
-            }
-
-            @Override
             protected Integer doInBackground(Void... voids) {
                 final MainActivity main = activityRef.get();
                 // Verificar qual sistema devolve melhor precisão da localização (GPS ou rede)
@@ -159,10 +153,8 @@ public class MainActivity extends AppCompatActivity implements LocationProviderI
                 HashMap<String, Restaurant> newRestaurants;
                 ZomatoCommunicator zc = new ZomatoCommunicator(main);
                 if (accGps < accNetwork) {
-                    Log.d(TAG, "GPS Wins: " + String.valueOf(accGps));
                     newRestaurants = zc.getRestaurants(lGps.getLatitude(), lGps.getLongitude());
                 } else {
-                    Log.d(TAG, "Network Wins: " + String.valueOf(accNetwork));
                     newRestaurants = zc.getRestaurants(lNetwork.getLatitude(), lNetwork.getLongitude());
                 }
                 // Apresentar localização de a apanhou

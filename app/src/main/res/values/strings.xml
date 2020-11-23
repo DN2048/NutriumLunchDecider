@@ -12,4 +12,5 @@
     <string name="waiting_for_gps">I know you are hungry but please wait for the app to get GPS signal…</string>
     <string name="action_sort_distance">Sort by Distance</string>
     <string name="action_sort_price">Sort by Price</string>
+    <string name="favourite">Favourite</string>
 </resources>

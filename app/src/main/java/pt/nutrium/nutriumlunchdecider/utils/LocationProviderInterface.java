@@ -1,6 +1,6 @@
 package pt.nutrium.nutriumlunchdecider.utils;
 
 public interface LocationProviderInterface {
-    public void locationUpdate(LocationProvider lp);
-    public void locationServicesTurnedOn();
+    void locationUpdate(LocationProvider lp);
+    void locationServicesTurnedOn();
 }

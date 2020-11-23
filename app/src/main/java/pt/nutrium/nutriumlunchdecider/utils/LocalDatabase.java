@@ -12,9 +12,9 @@ import java.util.LinkedHashMap;
 import pt.nutrium.nutriumlunchdecider.models.Restaurant;
 
 public class LocalDatabase extends SQLiteOpenHelper {
+    private static final String TAG = "DB";
     private static final int DB_VERSION = 1;
     private static final String DB_FILE_NAME = "restaurants.db";
-    private static final String TAG = "DB";
     private static final int COLUMN_DOESNT_EXISTS = -1;
     private static final String CREATE_TABLE = "CREATE TABLE %s (%s)";
 

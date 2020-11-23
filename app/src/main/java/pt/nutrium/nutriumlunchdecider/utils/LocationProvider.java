@@ -1,5 +1,6 @@
 package pt.nutrium.nutriumlunchdecider.utils;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.location.GpsStatus;
 import android.location.Location;
@@ -25,7 +26,7 @@ public class LocationProvider implements LocationListener, GpsStatus.Listener {
     private Location lastLocation;
     private long lastTime;
     private boolean isRunning;
-    private LocationProviderInterface lpi;
+    private final LocationProviderInterface lpi;
 
     public LocationProvider(Context context, LocationProviderInterface lpi, ProviderType type) {
         this.lpi = lpi;
@@ -37,6 +38,7 @@ public class LocationProvider implements LocationListener, GpsStatus.Listener {
     }
 
 
+    @SuppressLint("MissingPermission") // As permissões são verificadas na actividade principal antes de iniciar
     public void start() {
         if (!isRunning) {
             isRunning = true;
@@ -56,41 +58,15 @@ public class LocationProvider implements LocationListener, GpsStatus.Listener {
     }
 
 
-    public boolean hasLocation() {
-        if (lastLocation == null) {
-            return false;
-        } else if (System.currentTimeMillis() - lastTime > STALE_THRESHOLD)
-            // Não houve mais atualizações de posição
-            return false;
-        else
-            return true;
-    }
-
-
-    public boolean hasPossiblyStaleLocation() {
-        if (lastLocation != null) {
-            return true;
-        }
-        return lm.getLastKnownLocation(provider) != null;
-    }
-
-
     public Location getLocation() {
         if (lastLocation == null) {
             return null;
         }
+        // Não houve mais atualizações de posição
         if (System.currentTimeMillis() - lastTime > STALE_THRESHOLD) {
             return null;
         }
         return lastLocation;
-    }
-
-
-    public Location getPossiblyStaleLocation() {
-        if (lastLocation != null) {
-            return lastLocation;
-        }
-        return lm.getLastKnownLocation(provider);
     }
 
 

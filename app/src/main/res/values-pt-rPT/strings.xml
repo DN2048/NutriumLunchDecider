@@ -13,4 +13,5 @@
     <string name="failed_to_get_location">Não foi possível obter a localização. Certifica-te que tens o GPS ligado.</string>
     <string name="waiting_for_gps">Eu sei que tens fome mas aguarda que a app apanhe sinal GPS…</string>
     <string name="help_message">Este app apresenta os restaurantes perto de ti.\n\nToca no restaurante para abrir a sua localização no teu navegador GPS.\nToque longo para adicionar/remover o restaurante aos teus favoritos.</string>
+    <string name="favourite">Favorito</string>
 </resources>
